@@ -8,8 +8,9 @@ const DEFAULT_REGION: &str = "us-west-2";
 
 #[derive(Debug, Parser)]
 #[clap(
-    name = "ecs-connector",
-    about = "Generate ECS Fargate connection strings"
+    name = "ecs-jumper",
+    about = "Generate ECS Fargate connection strings",
+    version = env!("CARGO_PKG_VERSION")
 )]
 struct Opt {
     /// The AWS Region.
