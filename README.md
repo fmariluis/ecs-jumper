@@ -1,19 +1,23 @@
 # ECS session manager helper
 
-Simple program to output the right `aws` cli command to connect to a running ECS task.
+Simple program to output the proper `awscli` command to connect to a running ECS task.
 
 ## Usage
 ```shell
-jumper -c cluster-name -n container-name -s service-name
+ecs-jumper -c cluster-name -n container-name -s service-name
 ```
 Output:
 
 ```
-aws ecs execute-command  \
-        --region us-west-2 \
-        --cluster cluster-name \
-        --task arn:aws:ecs:us-west-2:11111111:task/container-name/d2621311sbf584a02849709b35f057db0 \
-        --container container-name \
-        --command "/bin/bash" \
-        --interactive
+Container Image: 123123123.dkr.ecr.us-west-2.amazonaws.com/example:7a80faa
+Running image Tag: 7a80faa
+
+
+aws ecs execute-command \
+                --region us-west-2 \
+                --cluster example-cluster \
+                --task arn:aws:ecs:us-west-2:123123123:task/neoworx-production/edafda3154507abc1dfff8e33e220 \
+                --container container-name \
+                --command "/bin/bash" \
+                --interactive
 ```
