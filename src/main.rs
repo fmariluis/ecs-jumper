@@ -34,6 +34,10 @@ struct Opt {
     verbose: bool,
 }
 
+fn extract_image_tag(image: &str) -> Option<&str> {
+    image.split(':').nth(1)
+}
+
 async fn get_fargate_connection_string(
     client: &aws_sdk_ecs::Client,
     cluster: &str,
@@ -49,16 +53,42 @@ async fn get_fargate_connection_string(
         .await?;
 
     for task_arn in tasks.task_arns() {
+        let task_description = client
+            .describe_tasks()
+            .cluster(cluster)
+            .tasks(task_arn)
+            .send()
+            .await?;
+
+        for task in task_description.tasks() {
+            for container in task.containers() {
+                if container.name() == Some(container_name) {
+                    if let Some(image) = container.image() {
+                        println!("---------------"); // Add a blank line for readability
+                        println!("Container Image: {}", image);
+                        if let Some(tag) = extract_image_tag(image) {
+                            println!("Running image Tag: {}", tag);
+                            println!(); // Add a blank line for readability
+                        } else {
+                            println!("Image Tag: Not found or using 'latest'");
+                            println!(); // Add a blank line for readability
+                        }
+                    }
+                }
+            }
+        }
+
         let command = format!(
             r#"aws ecs execute-command \
-            --region {region} \
-            --cluster {cluster} \
-            --task {task_arn} \
-            --container {container_name} \
-            --command "/bin/bash" \
-            --interactive"#
+                --region {region} \
+                --cluster {cluster} \
+                --task {task_arn} \
+                --container {container_name} \
+                --command "/bin/bash" \
+                --interactive"#
         );
-        println!("{}", command);
+        println!("\n{}", command);
+        println!(); // Add a blank line for readability
     }
 
     Ok(())
