@@ -2,6 +2,7 @@
 name = "jumper"
 version = "0.1.1"
 description = "Generate awscli connection strings to running ECS tasks"
+license = "MIT OR Apache-2.0"
 edition = "2021"
 
 [dependencies]
