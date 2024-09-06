@@ -16,7 +16,7 @@ Running image Tag: 7a80faa
 aws ecs execute-command \
                 --region us-west-2 \
                 --cluster example-cluster \
-                --task arn:aws:ecs:us-west-2:123123123:task/neoworx-production/edafda3154507abc1dfff8e33e220 \
+                --task arn:aws:ecs:us-west-2:123123123:task/container-name/edafda3154507abc1dfff8e33e220 \
                 --container container-name \
                 --command "/bin/bash" \
                 --interactive
