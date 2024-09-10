@@ -22,8 +22,4 @@ aws ecs execute-command \
                 --interactive
 ```
 
-You can run it with `--quiet` to supress the extra output and pipe the output to the shell, allowing you to connect without copying and pasting the output.
-
-```shell
-ecs-jumper -c cluster-name -n container-name -s service-name -r us-west-2 --quiet | bash
-```
+You can run it with `--quiet` to supress the extra output and return a single result.
