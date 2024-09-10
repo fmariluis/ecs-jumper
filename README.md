@@ -4,7 +4,7 @@ Simple program to output the proper `awscli` command to connect to a running ECS
 
 ## Usage
 ```shell
-ecs-jumper -c cluster-name -n container-name -s service-name
+ecs-jumper -c cluster-name -n container-name -s service-name -r us-west-2
 ```
 Output:
 
@@ -20,4 +20,10 @@ aws ecs execute-command \
                 --container container-name \
                 --command "/bin/bash" \
                 --interactive
+```
+
+You can run it with `--quiet` to supress the extra output and pipe the output to the shell, allowing you to connect without copying and pasting the output.
+
+```shell
+ecs-jumper -c cluster-name -n container-name -s service-name -r us-west-2 --quiet | bash
 ```
