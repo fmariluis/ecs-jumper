@@ -32,6 +32,10 @@ struct Opt {
     /// Whether to display additional information.
     #[clap(short, long)]
     verbose: bool,
+
+    /// Just output the command to run, for the first task it finds.
+    #[clap(short, long)]
+    quiet: bool,
 }
 
 fn extract_image_tag(image: &str) -> Option<&str> {
@@ -44,6 +48,7 @@ async fn get_fargate_connection_string(
     container_name: &str,
     service_name: &str,
     region: &str,
+    quiet: &bool,
 ) -> Result<(), Error> {
     let tasks = client
         .list_tasks()
@@ -60,18 +65,20 @@ async fn get_fargate_connection_string(
             .send()
             .await?;
 
-        for task in task_description.tasks() {
-            for container in task.containers() {
-                if container.name() == Some(container_name) {
-                    if let Some(image) = container.image() {
-                        println!("---------------"); // Add a blank line for readability
-                        println!("Container Image: {}", image);
-                        if let Some(tag) = extract_image_tag(image) {
-                            println!("Running image Tag: {}", tag);
-                            println!(); // Add a blank line for readability
-                        } else {
-                            println!("Image Tag: Not found or using 'latest'");
-                            println!(); // Add a blank line for readability
+        if !quiet {
+            for task in task_description.tasks() {
+                for container in task.containers() {
+                    if container.name() == Some(container_name) {
+                        if let Some(image) = container.image() {
+                            println!("---------------"); // Add a blank line for readability
+                            println!("Container Image: {}", image);
+                            if let Some(tag) = extract_image_tag(image) {
+                                println!("Running image Tag: {}", tag);
+                                println!(); // Add a blank line for readability
+                            } else {
+                                println!("Image Tag: Not found or using 'latest'");
+                                println!(); // Add a blank line for readability
+                            }
                         }
                     }
                 }
@@ -88,6 +95,10 @@ async fn get_fargate_connection_string(
                 --interactive"#
         );
         println!("\n{}", command);
+        if *quiet {
+            // if quiet is set, only output the first task found
+            break;
+        }
         println!(); // Add a blank line for readability
     }
 
@@ -102,7 +113,7 @@ async fn main() -> Result<(), Error> {
         .or_default_provider()
         .or_else(Region::new(DEFAULT_REGION));
 
-    if opt.verbose {
+    if opt.verbose && !opt.quiet {
         println!();
         println!("ECS client version: {}", env!("CARGO_PKG_VERSION"));
         println!(
@@ -125,6 +136,7 @@ async fn main() -> Result<(), Error> {
         &opt.container_name,
         &opt.service_name,
         &opt.region,
+        &opt.quiet,
     )
     .await
 }
